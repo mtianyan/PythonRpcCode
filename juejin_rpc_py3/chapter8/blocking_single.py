@@ -38,7 +38,7 @@ def send_result(conn, out, result):
     response = json.dumps({"out": out, "result": result})  # 响应消息体
     length_prefix = struct.pack("I", len(response))  # 响应长度前缀
     conn.sendall(length_prefix)
-    conn.sendall(response)
+    conn.sendall(bytes(response,'utf-8'))
 
 
 if __name__ == '__main__':
