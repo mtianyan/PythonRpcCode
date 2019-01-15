@@ -39,7 +39,7 @@ def send_result(conn, out, result):
     response = json.dumps({"out": out, "result": result})
     length_prefix = struct.pack("I", len(response))
     conn.sendall(length_prefix)
-    conn.sendall(response)
+    conn.sendall(bytes(response,'utf-8'))
 
 
 if __name__ == '__main__':
