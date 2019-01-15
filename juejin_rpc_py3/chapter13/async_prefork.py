@@ -5,7 +5,7 @@ import json
 import struct
 import socket
 import asyncore
-from io import StringIO
+from io import BytesIO
 
 
 class RPCHandler(asyncore.dispatcher_with_send):
@@ -16,7 +16,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
         self.handlers = {
             "ping": self.ping
         }
-        self.rbuf = StringIO()  # 读缓冲
+        self.rbuf = BytesIO()  # 读缓冲
 
     def handle_connect(self):
         print(self.addr, 'comes')
@@ -51,7 +51,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
             handler = self.handlers[in_]
             handler(params) # 处理RPC
             left = self.rbuf.getvalue()[length + 4:]  # 截断读缓冲
-            self.rbuf = StringIO()
+            self.rbuf = BytesIO()
             self.rbuf.write(left)
         self.rbuf.seek(0, 2)  # 移动游标到缓冲区末尾，便于后续内容直接追加
 
@@ -63,7 +63,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
         body = json.dumps(response)
         length_prefix = struct.pack("I", len(body))
         self.send(length_prefix)
-        self.send(body)
+        self.send(bytes(body,'utf-8'))
 
 
 class RPCServer(asyncore.dispatcher):
