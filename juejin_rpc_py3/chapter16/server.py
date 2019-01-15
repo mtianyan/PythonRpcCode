@@ -9,7 +9,7 @@ import struct
 import signal
 import socket
 import asyncore
-from io import StringIO
+from io import BytesIO
 from kazoo.client import KazooClient
 
 
@@ -22,7 +22,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
             "ping": self.ping,
             "pi": self.pi
         }
-        self.rbuf = StringIO()
+        self.rbuf = BytesIO()
 
     def handle_connect(self):
         print(self.addr, 'comes')
@@ -57,7 +57,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
             handler = self.handlers[in_]
             handler(params)
             left = self.rbuf.getvalue()[length + 4:]
-            self.rbuf = StringIO()
+            self.rbuf = BytesIO()
             self.rbuf.write(left)
         self.rbuf.seek(0, 2)
 
@@ -76,7 +76,7 @@ class RPCHandler(asyncore.dispatcher_with_send):
         body = json.dumps(response)
         length_prefix = struct.pack("I", len(body))
         self.send(length_prefix)
-        self.send(body)
+        self.send(bytes(body,'utf-8'))
 
 
 class RPCServer(asyncore.dispatcher):
@@ -117,7 +117,7 @@ class RPCServer(asyncore.dispatcher):
         self.zk.ensure_path(self.zk_root)  # 创建根节点
         value = json.dumps({"host": self.host, "port": self.port})
         # 创建服务子节点
-        self.zk.create(self.zk_rpc, value, ephemeral=True, sequence=True)
+        self.zk.create(self.zk_rpc, bytes(value,'utf-8'), ephemeral=True, sequence=True)
 
     def exit_parent(self, sig, frame):
         self.zk.stop()  # 关闭zk客户端
