@@ -4,7 +4,7 @@ import json
 import struct
 import socket
 import asyncore
-from io import StringIO
+from io import BytesIO
 
 
 class RPCHandler(asyncore.dispatcher_with_send):  # 客户套接字处理器必须继承dispatcher_with_send
@@ -15,7 +15,7 @@ class RPCHandler(asyncore.dispatcher_with_send):  # 客户套接字处理器必�
         self.handlers = {
             "ping": self.ping
         }
-        self.rbuf = StringIO()  # 读缓冲区由用户代码维护，写缓冲区由asyncore内部提供
+        self.rbuf = BytesIO()  # 读缓冲区由用户代码维护，写缓冲区由asyncore内部提供
 
     def handle_connect(self):  # 新的连接被accept后回调方法
         print(self.addr, 'comes')
@@ -50,7 +50,7 @@ class RPCHandler(asyncore.dispatcher_with_send):  # 客户套接字处理器必�
             handler = self.handlers[in_]
             handler(params)  # 处理消息
             left = self.rbuf.getvalue()[length + 4:]  # 消息处理完了，缓冲区要截断
-            self.rbuf = StringIO()
+            self.rbuf = BytesIO()
             self.rbuf.write(left)
         self.rbuf.seek(0, 2)  # 将游标挪到文件结尾，以便后续读到的内容直接追加
 
@@ -60,9 +60,10 @@ class RPCHandler(asyncore.dispatcher_with_send):  # 客户套接字处理器必�
     def send_result(self, out, result):
         response = {"out": out, "result": result}
         body = json.dumps(response)
+        print(len(body))
         length_prefix = struct.pack("I", len(body))
         self.send(length_prefix)  # 写入缓冲区
-        self.send(body) # 写入缓冲区
+        self.send(bytes(body,'utf-8')) # 写入缓冲区
 
 
 class RPCServer(asyncore.dispatcher):  # 服务器套接字处理器必须继承dispatcher
