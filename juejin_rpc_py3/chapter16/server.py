@@ -12,6 +12,10 @@ import asyncore
 from io import BytesIO
 from kazoo.client import KazooClient
 
+"""
+str can't bytes
+"""
+
 
 class RPCHandler(asyncore.dispatcher_with_send):
 

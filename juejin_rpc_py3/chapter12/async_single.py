@@ -5,7 +5,11 @@ import struct
 import socket
 import asyncore
 from io import BytesIO
-
+"""
+统一使用BytesIO，str转换为bytes
+string argument expected, got 'bytes'
+unpack requires a string argument of length 4
+"""
 
 class RPCHandler(asyncore.dispatcher_with_send):  # 客户套接字处理器必须继承dispatcher_with_send
 

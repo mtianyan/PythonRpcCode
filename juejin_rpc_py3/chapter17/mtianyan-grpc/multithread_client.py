@@ -14,7 +14,7 @@ def main():
     client = pi_pb2_grpc.PiCalculatorStub(channel)
     pool = futures.ThreadPoolExecutor(max_workers=10)
     results = []
-    for i in range(1, 1000):
+    for i in range(1, 100):
         results.append((i, pool.submit(pi, client, i)))
     pool.shutdown()
 

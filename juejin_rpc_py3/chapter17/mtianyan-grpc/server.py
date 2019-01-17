@@ -17,6 +17,7 @@ class PiCalculatorServicer(pi_pb2_grpc.PiCalculatorServicer):
         s = 0.0
         for i in range(request.n):
             s += 1.0/(2*i+1)/(2*i+1)
+        time.sleep(1)
         return pi_pb2.PiResponse(value=math.sqrt(8*s))
 
 
